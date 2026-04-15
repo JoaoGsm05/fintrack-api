@@ -1,0 +1,36 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+*.classpath
+*.project
+*.settings/
+
+# Spring Boot
+*.log
+logs/
+
+# Variáveis de ambiente e segredos
+.env
+.env.*
+!.env.example
+application-secrets.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
