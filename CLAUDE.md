@@ -1,10 +1,10 @@
 # CLAUDE.md — FinTrack API
 
 ## Estado Atual
-- **Fase:** 2 em progresso — Passos 1–5 concluídos (Migration, Entidades, Repositories, DTOs, Specification)
-- **Última tarefa concluída:** Fase 2 Passos 1–5 + fix MapStruct/Lombok records — 38/38 testes passando (2026-04-15)
-- **Próxima tarefa:** Fase 2 — Passo 6: Exceções novas (ResourceNotFoundException, BusinessRuleException) + Services (AccountService, CategoryService, TransactionService)
-- **Testes passando:** 38/38 (mvn clean test — BUILD SUCCESS 2026-04-15)
+- **Fase:** 2 COMPLETA — Passos 1–11 concluídos
+- **Última tarefa concluída:** Fase 2 completa (exceções, services, controllers, testes) — 97/97 testes passando (2026-04-15)
+- **Próxima tarefa:** Fase 3 — Budget, RecurringTransaction, Cache, Relatórios
+- **Testes passando:** 97/97 (mvn clean test — BUILD SUCCESS 2026-04-15)
 
 ## Decisões Tomadas Nesta Sessão
 - 2026-04-15 — Inicialização da memória do projeto via CLAUDE.md.
@@ -55,11 +55,10 @@
 6. ✅ MapStruct mappers: `AccountMapper`, `CategoryMapper`, `TransactionMapper`
 7. ✅ `TransactionSpecification` — 10 filtros dinâmicos (userId, deletedAt, date range, category, account, type, amount range, description LIKE)
 
-### Pendente (próxima sessão)
-8. ⏳ Exceções novas: `ResourceNotFoundException` (404), `BusinessRuleException` (422) + handlers no GlobalExceptionHandler
-9. ⏳ Services: `AccountService`, `CategoryService`, `TransactionService` (sempre filtrar por userId do JWT)
-10. ⏳ Controllers: `AccountController`, `CategoryController`, `TransactionController`
-11. ⏳ Testes: unitários por service + integração por controller
+8. ✅ Exceções novas: `ResourceNotFoundException` (404), `BusinessRuleException` (422) + handlers no GlobalExceptionHandler + `HttpStatusEntryPoint(401)` no SecurityConfig
+9. ✅ Services: `AccountService`, `CategoryService`, `TransactionService` (sempre filtrar por userId do JWT)
+10. ✅ Controllers: `AccountController`, `CategoryController`, `TransactionController` (paginação, `@AuthenticationPrincipal`)
+11. ✅ Testes: 18 unitários (Mockito) + 36 integração (@SpringBootTest + H2) — 97/97 passando
 
 ## Fase 3 (futura)
 - Budget, RecurringTransaction, Cache, Relatórios
