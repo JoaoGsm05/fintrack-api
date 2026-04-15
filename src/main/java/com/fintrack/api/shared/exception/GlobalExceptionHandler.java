@@ -11,12 +11,16 @@ import java.net.URI;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.AccessDeniedException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final URI TYPE_VALIDATION = URI.create("urn:fintrack:error:validation");
-    private static final URI TYPE_BUSINESS   = URI.create("urn:fintrack:error:business");
-    private static final URI TYPE_AUTH       = URI.create("urn:fintrack:error:auth");
+    private static final URI TYPE_VALIDATION   = URI.create("urn:fintrack:error:validation");
+    private static final URI TYPE_BUSINESS     = URI.create("urn:fintrack:error:business");
+    private static final URI TYPE_AUTH         = URI.create("urn:fintrack:error:auth");
+    private static final URI TYPE_NOT_FOUND    = URI.create("urn:fintrack:error:not-found");
+    private static final URI TYPE_FORBIDDEN    = URI.create("urn:fintrack:error:forbidden");
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
@@ -58,6 +62,33 @@ public class GlobalExceptionHandler {
         pd.setType(TYPE_AUTH);
         pd.setTitle("Invalid Token");
         pd.setDetail(ex.getMessage());
+        return pd;
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setType(TYPE_NOT_FOUND);
+        pd.setTitle("Resource Not Found");
+        pd.setDetail(ex.getMessage());
+        return pd;
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ProblemDetail handleBusinessRule(BusinessRuleException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
+        pd.setType(TYPE_BUSINESS);
+        pd.setTitle("Business Rule Violation");
+        pd.setDetail(ex.getMessage());
+        return pd;
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        pd.setType(TYPE_FORBIDDEN);
+        pd.setTitle("Access Denied");
+        pd.setDetail("Você não tem permissão para acessar este recurso");
         return pd;
     }
 
