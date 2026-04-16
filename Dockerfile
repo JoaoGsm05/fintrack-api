@@ -1,27 +1,21 @@
-# ─── Stage 1: Build ────────────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /workspace
 
-# Copia wrapper e pom antes do source para aproveitar cache de dependências
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -q
+RUN chmod +x mvnw && ./mvnw -B dependency:go-offline
 
 COPY src ./src
-RUN ./mvnw -q clean package -DskipTests -Dfile.encoding=UTF-8
+RUN ./mvnw -B clean package -DskipTests
 
-# ─── Stage 2: Runtime ──────────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-jammy AS runtime
 WORKDIR /app
 
-RUN groupadd --system fintrack && useradd --system --gid fintrack fintrack
+RUN groupadd --system fintrack && useradd --system --gid fintrack --create-home fintrack
 
-COPY --from=build /workspace/target/*.jar app.jar
+COPY --from=build /workspace/target/*.jar /app/app.jar
 
 USER fintrack
 EXPOSE 8080
 
-ENTRYPOINT ["java", \
-  "-Dfile.encoding=UTF-8", \
-  "-Djava.security.egd=file:/dev/./urandom", \
-  "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app/app.jar"]

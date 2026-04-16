@@ -16,29 +16,28 @@ import org.springframework.context.annotation.Configuration;
                 title = "FinTrack API",
                 version = "1.0.0",
                 description = """
-                        REST API para gestão de finanças pessoais.
+                        REST API para gestao de financas pessoais.
 
                         **Funcionalidades:**
-                        - Autenticação JWT com refresh token rotation
-                        - Contas, categorias e transações com soft delete
-                        - Orçamentos (budgets) por categoria e período
-                        - Transações recorrentes com agendamento automático
-                        - Relatórios de despesas por categoria
-                        - Exportação de dados em CSV
+                        - Autenticacao JWT com refresh token rotation
+                        - Contas, categorias e transacoes com soft delete
+                        - Orcamentos por categoria e periodo
+                        - Transacoes recorrentes com agendamento automatico
+                        - Relatorios de despesas por categoria
+                        - Exportacao de dados em CSV
 
-                        **Autenticação:** use `POST /api/auth/login` para obter o `accessToken`,\\
-                        depois clique em **Authorize** e insira `Bearer <token>`.
+                        **Autenticacao:** use `POST /api/auth/login` para obter o `accessToken`,\
+                        depois clique em **Authorize** e informe `Bearer <token>`.
                         """,
                 contact = @Contact(
-                        name = "João Guilherme Souza de Mendonça",
+                        name = "Joao Guilherme Souza de Mendonca",
                         email = "joaog.mendonca.eng@gmail.com",
                         url = "https://github.com/JoaoGsm05/fintrack-api"
                 ),
                 license = @License(name = "MIT")
         ),
         servers = {
-                @Server(url = "http://localhost:8080", description = "Desenvolvimento local"),
-                @Server(url = "http://localhost:8080", description = "Docker (docker-compose up)")
+                @Server(url = "http://localhost:8080", description = "Ambiente local ou Docker Compose")
         }
 )
 @SecurityScheme(

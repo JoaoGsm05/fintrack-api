@@ -1,6 +1,7 @@
 package com.fintrack.api.transaction.dto;
 
 import com.fintrack.api.transaction.entity.TransactionType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -9,24 +10,30 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Schema(name = "TransactionRequest", description = "Payload para criacao de transacao")
 public record TransactionRequest(
 
-        @NotNull(message = "Conta é obrigatória")
+        @Schema(description = "Conta associada a transacao", example = "11111111-1111-1111-1111-111111111111")
+        @NotNull(message = "Conta e obrigatoria")
         UUID accountId,
 
-        /** Nullable — transação pode não ter categoria. */
+        @Schema(description = "Categoria opcional da transacao", example = "22222222-2222-2222-2222-222222222222", nullable = true)
         UUID categoryId,
 
-        @NotNull(message = "Tipo de transação é obrigatório")
+        @Schema(description = "Tipo da transacao", example = "EXPENSE")
+        @NotNull(message = "Tipo de transacao e obrigatorio")
         TransactionType type,
 
-        @NotNull(message = "Valor é obrigatório")
+        @Schema(description = "Valor da transacao", example = "89.90")
+        @NotNull(message = "Valor e obrigatorio")
         @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
         BigDecimal amount,
 
-        @Size(max = 255, message = "Descrição deve ter no máximo 255 caracteres")
+        @Schema(description = "Descricao livre da transacao", example = "Compra no mercado")
+        @Size(max = 255, message = "Descricao deve ter no maximo 255 caracteres")
         String description,
 
-        @NotNull(message = "Data é obrigatória")
+        @Schema(description = "Data efetiva da transacao", example = "2026-04-15")
+        @NotNull(message = "Data e obrigatoria")
         LocalDate date
 ) {}

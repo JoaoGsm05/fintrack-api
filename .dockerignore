@@ -1,0 +1,10 @@
+target/
+.git/
+.github/
+.idea/
+.vscode/
+test_output.txt
+test_ps_output.txt
+README.md
+CHANGELOG.md
+CLAUDE.md

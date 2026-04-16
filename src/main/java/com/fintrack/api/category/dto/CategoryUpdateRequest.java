@@ -1,22 +1,28 @@
 package com.fintrack.api.category.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
+@Schema(name = "CategoryUpdateRequest", description = "Payload para atualizacao de categoria")
 public record CategoryUpdateRequest(
 
+        @Schema(description = "Categoria pai. Nulo indica categoria raiz", example = "null", nullable = true)
         UUID parentId,
 
-        @NotBlank(message = "Nome é obrigatório")
-        @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres")
+        @Schema(description = "Nome da categoria", example = "Mercado")
+        @NotBlank(message = "Nome e obrigatorio")
+        @Size(max = 100, message = "Nome deve ter no maximo 100 caracteres")
         String name,
 
-        @Size(max = 50, message = "Ícone deve ter no máximo 50 caracteres")
+        @Schema(description = "Nome do icone exibido no frontend", example = "shopping-basket")
+        @Size(max = 50, message = "Icone deve ter no maximo 50 caracteres")
         String icon,
 
-        @Pattern(regexp = "^#([A-Fa-f0-9]{6})$", message = "Cor deve ser um código hex válido (ex: #FF5733)")
+        @Schema(description = "Cor hexadecimal associada a categoria", example = "#22C55E")
+        @Pattern(regexp = "^#([A-Fa-f0-9]{6})$", message = "Cor deve ser um codigo hex valido (ex: #FF5733)")
         String color
 ) {}

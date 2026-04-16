@@ -1,6 +1,7 @@
 package com.fintrack.api.account.dto;
 
 import com.fintrack.api.account.entity.AccountType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,19 +9,24 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
+@Schema(name = "AccountRequest", description = "Payload para criacao de conta financeira")
 public record AccountRequest(
 
-        @NotBlank(message = "Nome é obrigatório")
-        @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres")
+        @Schema(description = "Nome exibido da conta", example = "Carteira Principal")
+        @NotBlank(message = "Nome e obrigatorio")
+        @Size(max = 100, message = "Nome deve ter no maximo 100 caracteres")
         String name,
 
-        @NotNull(message = "Tipo de conta é obrigatório")
+        @Schema(description = "Tipo da conta", example = "CHECKING")
+        @NotNull(message = "Tipo de conta e obrigatorio")
         AccountType type,
 
-        @DecimalMin(value = "0.00", message = "Saldo inicial não pode ser negativo")
+        @Schema(description = "Saldo inicial da conta", example = "2500.00")
+        @DecimalMin(value = "0.00", message = "Saldo inicial nao pode ser negativo")
         BigDecimal balance,
 
-        @NotBlank(message = "Moeda é obrigatória")
+        @Schema(description = "Codigo ISO da moeda", example = "BRL")
+        @NotBlank(message = "Moeda e obrigatoria")
         @Size(min = 3, max = 3, message = "Moeda deve ter exatamente 3 caracteres (ex: BRL, USD)")
         String currency
 ) {}

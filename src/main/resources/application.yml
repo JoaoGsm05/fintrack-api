@@ -17,7 +17,7 @@ spring:
           writetimeout: 5000
 
 server:
-  port: 8080
+  port: ${PORT:8080}
   tomcat:
     connection-timeout: 5s
 
