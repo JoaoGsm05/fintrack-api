@@ -139,7 +139,7 @@ class AuthControllerIntegrationTest {
                                     }
                                     """))
                     .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.title").value("Email Already Registered"));
+                    .andExpect(jsonPath("$.title").value("Este e-mail já está em uso"));
         }
     }
 

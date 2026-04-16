@@ -25,7 +25,10 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
@@ -44,19 +47,17 @@ class CategoryServiceTest {
 
     @BeforeEach
     void setUp() {
-        userId     = UUID.randomUUID();
+        userId = UUID.randomUUID();
         categoryId = UUID.randomUUID();
         fakeCategory = Category.builder()
                 .userId(userId)
-                .name("Alimentação")
-                .icon("🍔")
+                .name("Alimentacao")
+                .icon("food")
                 .color("#FF5733")
                 .build();
         fakeResponse = new CategoryResponse(categoryId, userId, null,
-                "Alimentação", "🍔", "#FF5733", null, null);
+                "Alimentacao", "food", "#FF5733", null, null);
     }
-
-    // ── create() ─────────────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("create()")
@@ -65,7 +66,7 @@ class CategoryServiceTest {
         @Test
         @DisplayName("Salva categoria raiz e retorna CategoryResponse")
         void create_rootCategory_savesAndReturnsResponse() {
-            CategoryRequest request = new CategoryRequest(null, "Alimentação", "🍔", "#FF5733");
+            CategoryRequest request = new CategoryRequest(null, "Alimentacao", "food", "#FF5733");
             when(categoryRepository.save(any())).thenReturn(fakeCategory);
             when(categoryMapper.toResponse(fakeCategory)).thenReturn(fakeResponse);
 
@@ -76,7 +77,7 @@ class CategoryServiceTest {
         }
 
         @Test
-        @DisplayName("Lança ResourceNotFoundException quando parentId não existe")
+        @DisplayName("Lanca ResourceNotFoundException quando parentId nao existe")
         void create_invalidParentId_throwsResourceNotFoundException() {
             UUID parentId = UUID.randomUUID();
             CategoryRequest request = new CategoryRequest(parentId, "Lanche", null, null);
@@ -104,14 +105,12 @@ class CategoryServiceTest {
         }
     }
 
-    // ── listAll() ─────────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("listAll()")
     class ListAll {
 
         @Test
-        @DisplayName("Retorna lista de categorias do usuário")
+        @DisplayName("Retorna lista de categorias do usuario")
         void listAll_returnsUserCategories() {
             when(categoryRepository.findAllByUserIdAndDeletedAtIsNull(userId))
                     .thenReturn(List.of(fakeCategory));
@@ -123,8 +122,6 @@ class CategoryServiceTest {
             assertThat(result).hasSize(1).contains(fakeResponse);
         }
     }
-
-    // ── findById() ────────────────────────────────────────────────────────────
 
     @Nested
     @DisplayName("findById()")
@@ -141,7 +138,7 @@ class CategoryServiceTest {
         }
 
         @Test
-        @DisplayName("Lança ResourceNotFoundException quando não encontrada")
+        @DisplayName("Lanca ResourceNotFoundException quando nao encontrada")
         void findById_notFound_throwsResourceNotFoundException() {
             when(categoryRepository.findByIdAndUserIdAndDeletedAtIsNull(categoryId, userId))
                     .thenReturn(Optional.empty());
@@ -151,30 +148,27 @@ class CategoryServiceTest {
         }
     }
 
-    // ── delete() ─────────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("delete()")
     class Delete {
 
         @Test
-        @DisplayName("Aplica soft delete quando categoria não tem filhos nem transações")
-        void delete_noChildrenOrTransactions_softDeletes() {
+        @DisplayName("Aplica soft delete e limpa referencias em transacoes")
+        void delete_noChildren_softDeletesAndClearsReferences() {
             when(categoryRepository.findByIdAndUserIdAndDeletedAtIsNull(categoryId, userId))
                     .thenReturn(Optional.of(fakeCategory));
             when(categoryRepository.existsByParentIdAndDeletedAtIsNull(categoryId))
-                    .thenReturn(false);
-            when(transactionRepository.existsByCategoryIdAndDeletedAtIsNull(categoryId))
                     .thenReturn(false);
 
             categoryService.delete(userId, categoryId);
 
             assertThat(fakeCategory.getDeletedAt()).isNotNull();
-            verify(categoryRepository, times(2)).findByIdAndUserIdAndDeletedAtIsNull(categoryId, userId);
+            verify(transactionRepository).clearCategoryReferences(userId, categoryId);
+            verify(categoryRepository, times(1)).save(fakeCategory);
         }
 
         @Test
-        @DisplayName("Lança BusinessRuleException quando categoria tem subcategorias ativas")
+        @DisplayName("Lanca BusinessRuleException quando categoria tem subcategorias ativas")
         void delete_hasActiveChildren_throwsBusinessRuleException() {
             when(categoryRepository.findByIdAndUserIdAndDeletedAtIsNull(categoryId, userId))
                     .thenReturn(Optional.of(fakeCategory));
@@ -183,30 +177,18 @@ class CategoryServiceTest {
 
             assertThatThrownBy(() -> categoryService.delete(userId, categoryId))
                     .isInstanceOf(BusinessRuleException.class);
+            verify(transactionRepository, never()).clearCategoryReferences(userId, categoryId);
         }
 
         @Test
-        @DisplayName("Lança BusinessRuleException quando categoria tem transações ativas")
-        void delete_hasActiveTransactions_throwsBusinessRuleException() {
-            when(categoryRepository.findByIdAndUserIdAndDeletedAtIsNull(categoryId, userId))
-                    .thenReturn(Optional.of(fakeCategory));
-            when(categoryRepository.existsByParentIdAndDeletedAtIsNull(categoryId))
-                    .thenReturn(false);
-            when(transactionRepository.existsByCategoryIdAndDeletedAtIsNull(categoryId))
-                    .thenReturn(true);
-
-            assertThatThrownBy(() -> categoryService.delete(userId, categoryId))
-                    .isInstanceOf(BusinessRuleException.class);
-        }
-
-        @Test
-        @DisplayName("Lança ResourceNotFoundException quando categoria não pertence ao usuário")
+        @DisplayName("Lanca ResourceNotFoundException quando categoria nao pertence ao usuario")
         void delete_notFound_throwsResourceNotFoundException() {
             when(categoryRepository.findByIdAndUserIdAndDeletedAtIsNull(categoryId, userId))
                     .thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> categoryService.delete(userId, categoryId))
                     .isInstanceOf(ResourceNotFoundException.class);
+            verify(transactionRepository, never()).clearCategoryReferences(any(), any());
         }
     }
 }

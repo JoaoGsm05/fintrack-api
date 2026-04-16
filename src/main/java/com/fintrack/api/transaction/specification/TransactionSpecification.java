@@ -9,19 +9,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-/**
- * Filtros dinâmicos para {@link Transaction}.
- * Campos nulos no filtro são ignorados — retornam {@code null},
- * que o Spring Data trata como "sem restrição".
- */
 public final class TransactionSpecification {
 
     private TransactionSpecification() {}
 
-    /**
-     * Combina todos os filtros disponíveis.
-     * Sempre adiciona {@code userId} e {@code deletedAt IS NULL} (multi-tenancy + soft delete).
-     */
     public static Specification<Transaction> withFilters(UUID userId, TransactionFilterRequest filter) {
         return Specification
                 .where(hasUserId(userId))
@@ -35,8 +26,6 @@ public final class TransactionSpecification {
                 .and(amountLessThanOrEqual(filter.maxAmount()))
                 .and(descriptionContains(filter.description()));
     }
-
-    // ── Filtros privados ──────────────────────────────────────────────────────
 
     private static Specification<Transaction> hasUserId(UUID userId) {
         return (root, query, cb) -> cb.equal(root.get("userId"), userId);
@@ -83,7 +72,13 @@ public final class TransactionSpecification {
 
     private static Specification<Transaction> descriptionContains(String keyword) {
         if (keyword == null || keyword.isBlank()) return null;
+
+        String normalizedKeyword = keyword.trim().toLowerCase();
+        if (normalizedKeyword.length() < 3) {
+            return null;
+        }
+
         return (root, query, cb) ->
-                cb.like(cb.lower(root.get("description")), "%" + keyword.toLowerCase() + "%");
+                cb.like(cb.lower(root.get("description")), normalizedKeyword + "%");
     }
 }

@@ -5,6 +5,8 @@ import com.fintrack.api.account.dto.AccountResponse;
 import com.fintrack.api.account.dto.AccountUpdateRequest;
 import com.fintrack.api.account.service.AccountService;
 import com.fintrack.api.auth.entity.User;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Contas", description = "Gerenciamento de contas financeiras do usuário")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/accounts")
 @RequiredArgsConstructor

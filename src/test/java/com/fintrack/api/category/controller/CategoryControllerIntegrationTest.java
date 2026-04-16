@@ -1,11 +1,17 @@
 package com.fintrack.api.category.controller;
 
+import com.fintrack.api.account.entity.Account;
+import com.fintrack.api.account.entity.AccountType;
+import com.fintrack.api.account.repository.AccountRepository;
 import com.fintrack.api.auth.entity.Role;
 import com.fintrack.api.auth.entity.User;
 import com.fintrack.api.auth.repository.UserRepository;
 import com.fintrack.api.auth.security.JwtService;
 import com.fintrack.api.category.entity.Category;
 import com.fintrack.api.category.repository.CategoryRepository;
+import com.fintrack.api.transaction.entity.Transaction;
+import com.fintrack.api.transaction.entity.TransactionType;
+import com.fintrack.api.transaction.repository.TransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,10 +25,16 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -33,6 +45,8 @@ class CategoryControllerIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private UserRepository userRepository;
     @Autowired private CategoryRepository categoryRepository;
+    @Autowired private AccountRepository accountRepository;
+    @Autowired private TransactionRepository transactionRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private JwtService jwtService;
 
@@ -55,12 +69,10 @@ class CategoryControllerIntegrationTest {
                 .userId(usuario.getId())
                 .parentId(parentId)
                 .name(nome)
-                .icon("🍔")
+                .icon("food")
                 .color("#FF5733")
                 .build());
     }
-
-    // ── POST /api/categories ──────────────────────────────────────────────────
 
     @Nested
     @DisplayName("POST /api/categories")
@@ -73,15 +85,15 @@ class CategoryControllerIntegrationTest {
                             .header("Authorization", "Bearer " + token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
-                                    {"name":"Alimentação","icon":"🍔","color":"#FF5733"}
+                                    {"name":"Alimentacao","icon":"food","color":"#FF5733"}
                                     """))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.name").value("Alimentação"))
+                    .andExpect(jsonPath("$.name").value("Alimentacao"))
                     .andExpect(jsonPath("$.color").value("#FF5733"));
         }
 
         @Test
-        @DisplayName("Retorna 404 quando parentId não existe")
+        @DisplayName("Retorna 404 quando parentId nao existe")
         void create_invalidParentId_returns404() throws Exception {
             mockMvc.perform(post("/api/categories")
                             .header("Authorization", "Bearer " + token)
@@ -93,7 +105,7 @@ class CategoryControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("Retorna 422 quando nome está em branco")
+        @DisplayName("Retorna 422 quando nome esta em branco")
         void create_blankName_returns422() throws Exception {
             mockMvc.perform(post("/api/categories")
                             .header("Authorization", "Bearer " + token)
@@ -110,22 +122,20 @@ class CategoryControllerIntegrationTest {
             mockMvc.perform(post("/api/categories")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
-                                    {"name":"Alimentação"}
+                                    {"name":"Alimentacao"}
                                     """))
                     .andExpect(status().isUnauthorized());
         }
     }
-
-    // ── GET /api/categories ───────────────────────────────────────────────────
 
     @Nested
     @DisplayName("GET /api/categories")
     class ListAll {
 
         @Test
-        @DisplayName("Retorna 200 com lista de categorias do usuário")
+        @DisplayName("Retorna 200 com lista de categorias do usuario")
         void listAll_returnsUserCategories() throws Exception {
-            criarCategoria("Alimentação", null);
+            criarCategoria("Alimentacao", null);
             criarCategoria("Transporte", null);
 
             mockMvc.perform(get("/api/categories")
@@ -135,7 +145,7 @@ class CategoryControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("Não retorna categorias de outro usuário")
+        @DisplayName("Nao retorna categorias de outro usuario")
         void listAll_doesNotReturnOtherUsersCategories() throws Exception {
             User outro = userRepository.save(User.builder()
                     .name("Outro")
@@ -155,8 +165,6 @@ class CategoryControllerIntegrationTest {
         }
     }
 
-    // ── GET /api/categories/{id} ──────────────────────────────────────────────
-
     @Nested
     @DisplayName("GET /api/categories/{id}")
     class FindById {
@@ -164,16 +172,16 @@ class CategoryControllerIntegrationTest {
         @Test
         @DisplayName("Retorna 200 com dados da categoria")
         void findById_found_returns200() throws Exception {
-            Category cat = criarCategoria("Alimentação", null);
+            Category cat = criarCategoria("Alimentacao", null);
 
             mockMvc.perform(get("/api/categories/" + cat.getId())
                             .header("Authorization", "Bearer " + token))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value("Alimentação"));
+                    .andExpect(jsonPath("$.name").value("Alimentacao"));
         }
 
         @Test
-        @DisplayName("Retorna 404 quando não existe")
+        @DisplayName("Retorna 404 quando nao existe")
         void findById_notFound_returns404() throws Exception {
             mockMvc.perform(get("/api/categories/" + UUID.randomUUID())
                             .header("Authorization", "Bearer " + token))
@@ -181,20 +189,46 @@ class CategoryControllerIntegrationTest {
         }
     }
 
-    // ── DELETE /api/categories/{id} ───────────────────────────────────────────
-
     @Nested
     @DisplayName("DELETE /api/categories/{id}")
     class Delete {
 
         @Test
-        @DisplayName("Retorna 204 ao deletar categoria sem dependências")
+        @DisplayName("Retorna 204 ao deletar categoria sem dependencias")
         void delete_noDependencies_returns204() throws Exception {
             Category cat = criarCategoria("Para Deletar", null);
 
             mockMvc.perform(delete("/api/categories/" + cat.getId())
                             .header("Authorization", "Bearer " + token))
                     .andExpect(status().isNoContent());
+        }
+
+        @Test
+        @DisplayName("Retorna 204 e remove referencia em transacoes ativas")
+        void delete_withTransactions_clearsCategoryReference() throws Exception {
+            Category cat = criarCategoria("Mercado", null);
+            Account conta = accountRepository.save(Account.builder()
+                    .userId(usuario.getId())
+                    .name("Conta")
+                    .type(AccountType.CHECKING)
+                    .balance(BigDecimal.ZERO)
+                    .currency("BRL")
+                    .build());
+            Transaction tx = transactionRepository.save(Transaction.builder()
+                    .userId(usuario.getId())
+                    .accountId(conta.getId())
+                    .categoryId(cat.getId())
+                    .type(TransactionType.EXPENSE)
+                    .amount(new BigDecimal("120.00"))
+                    .description("Mercado semanal")
+                    .date(LocalDate.now())
+                    .build());
+
+            mockMvc.perform(delete("/api/categories/" + cat.getId())
+                            .header("Authorization", "Bearer " + token))
+                    .andExpect(status().isNoContent());
+
+            assertThat(transactionRepository.findById(tx.getId())).get().extracting(Transaction::getCategoryId).isNull();
         }
 
         @Test
@@ -209,7 +243,7 @@ class CategoryControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("Retorna 404 ao deletar categoria não encontrada")
+        @DisplayName("Retorna 404 ao deletar categoria nao encontrada")
         void delete_notFound_returns404() throws Exception {
             mockMvc.perform(delete("/api/categories/" + UUID.randomUUID())
                             .header("Authorization", "Bearer " + token))

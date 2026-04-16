@@ -1,0 +1,101 @@
+﻿
+D:\Projetos\Gestão de Finança\fintrack-api>IF NOT EXIST "D:\Projetos\Gestão de Finança\fintrack-api\\.mvn" (
+SET "UPPER_BASEDIR=D:\Projetos\Gestão de Finança\fintrack-api\.."  
+ IF EXIST "\.mvn" SET "MAVEN_PROJECTBASEDIR=" 
+) 
+mvnw.cmd : Uso: java [options] <mainclass> [args...]
+No linha:5 caractere:11
++ $output = & .\mvnw.cmd test --no-transfer-progress 2>&1
++           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Uso: java [opti...lass> [args...]:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+           (para executar uma classe)
+   ou  java [options] -jar <jarfile> [args...]
+           (para executar um arquivo jar)
+   ou  java [options] -m <module>[/<mainclass>] [args...]
+       java [options] --module <module>[/<mainclass>] [args...]
+           (para executar a classe principal em um m¾dulo)
+
+ Os argumentos ap¾s a classe principal, -jar <jarfile>, -m ou --module
+ <module>/<mainclass> sÒo especificados como os argumentos para a classe principal.
+
+ em que as opþ§es incluem:
+
+    -cp <caminho de pesquisa de classe de diret¾rios e arquivos zip/jar>
+    -classpath <caminho de pesquisa de classe de diret¾rios e arquivos zip/jar>
+    --class-path <caminho de pesquisa de classe de diret¾rios e arquivos zip/jar>
+                  Uma lista separada por ; de diret¾rios, arquivos compactados JAR
+                  e arquivos compactados ZIP para procurar arquivos de classe.
+    -p <caminho do m¾dulo>
+    --module-path <caminho do m¾dulo>...
+                  Uma lista separada por ; de diret¾rios, cada um
+                  sendo um diret¾rio de m¾dulos.
+    --upgrade-module-path <caminho do m¾dulo>...
+                  Uma lista separada por ; de diret¾rios, cada um
+                  sendo um diret¾rio de m¾dulos que substituem m¾dulos
+                  passÝveis de upgrade na imagem de runtime
+    --add-modules <nome do m¾dulo>[,<nome do m¾dulo>...]
+                  m¾dulos-raiz a serem resolvidos alÚm do m¾dulo inicial.
+                  <nome do m¾dulo> tambÚm pode ser ALL-DEFAULT, ALL-SYSTEM,
+                  ALL-MODULE-PATH.
+    --list-modules
+                  lista os m¾dulos observßveis e sai
+    -d <nome do m¾dulo>
+    --describe-module <nome do m¾dulo>
+                  descreve um m¾dulo e sai
+    --dry-run     cria VM e carrega classe principal, mas nÒo executa o mÚtodo principal.
+                  A opþÒo --dry-run pode ser ·til para validar as
+                  opþ§es de linha de comando como a configuraþÒo do sistema do m¾dulo.
+    --validate-modules
+                  valida todos os m¾dulos e sai
+                  A opþÒo --validate-modules pode ser ·til para localizar
+                  conflitos e outros erros com m¾dulos no caminho do m¾dulo.
+    -D<name>=<value>
+                  define uma propriedade de sistema
+    -verbose:[class|module|gc|jni]
+                  ativar saÝda verbosa
+    -version      imprime a versÒo do produto no fluxo de erros e sai
+    -version      imprime a versÒo do produto no fluxo de saÝda e sai
+    -showversion  imprime a versÒo do produto no fluxo de erros e continua
+    --show-version
+                  imprime a versÒo do produto no fluxo de saÝda e continua
+    --show-module-resolution
+                  mostra a saÝda da resoluþÒo do m¾dulo durante a inicializaþÒo
+    -? -h -help
+                  imprime esta mensagem de ajuda no fluxo de erros
+    --help        imprime esta mensagem de ajuda no fluxo de saÝda
+    -X            imprime ajuda sobre opþ§es extras no fluxo de erros
+    --help-extra  imprime ajuda sobre opþ§es extras no fluxo de saÝda
+    -ea[:<packagename>...|:<classname>]
+    -enableassertions[:<packagename>...|:<classname>]
+                  ativa asserþ§es com granularidade especificada
+    -da[:<packagename>...|:<classname>]
+    -disableassertions[:<packagename>...|:<classname>]
+                  desativa asserþ§es com granularidade especificada
+    -esa | -enablesystemassertions
+                  ativa asserþ§es de sistema
+    -dsa | -disablesystemassertions
+                  desativa asserþ§es de sistema
+    -agentlib:<libname>[=<options>]
+                  carrega biblioteca de agente nativo <libname>, por exemplo, -agentlib:jdwp
+                  consulte tambÚm -agentlib:jdwp=help
+    -agentpath:<pathname>[=<options>]
+                  carrega biblioteca de agente nativo por nome do caminho completo
+    -javaagent:<jarpath>[=<options>]
+                  carrega agente de linguagem de programaþÒo Java, consulte java.lang.instrument
+    -splash:<imagepath>
+                  mostra a tela inicial com a imagem especificada
+                  Imagens HiDPI dimensionadas sÒo suportadas automaticamente e utilizadas,
+                  se disponÝveis. O nome do arquivo de imagem nÒo dimensionada, por exemplo, image.ext,
+                  deve ser informado sempre como argumento para a opþÒo -splash.
+                  A imagem dimensionada mais apropriada fornecida serß selecionada
+                  automaticamente.
+                  Consulte a documentaþÒo da API de Tela Inicial para obter mais informaþ§es
+    @arquivos de argumento
+                  Um ou mais arquivos de argumentos que contÛm opþ§es
+    --disable-@files
+                  impede expansÒo adicional de arquivo de argumentos
+nPara especificar um argumento para uma opþÒo longa, vocÛ pode usar --<name>=<value> ou
+--<name> <value>.
+

@@ -8,11 +8,15 @@ import com.fintrack.api.account.entity.Account;
 import com.fintrack.api.account.repository.AccountRepository;
 import com.fintrack.api.shared.exception.BusinessRuleException;
 import com.fintrack.api.shared.exception.ResourceNotFoundException;
+import com.fintrack.api.transaction.entity.Transaction;
+import com.fintrack.api.transaction.entity.TransactionType;
 import com.fintrack.api.transaction.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -27,14 +31,38 @@ public class AccountService {
 
     @Transactional
     public AccountResponse create(UUID userId, AccountRequest request) {
+        BigDecimal initialBalance = request.balance() != null ? request.balance() : BigDecimal.ZERO;
+
+        // 1. Cria a conta com saldo zero inicialmente
         Account account = Account.builder()
                 .userId(userId)
                 .name(request.name())
                 .type(request.type())
-                .balance(request.balance() != null ? request.balance() : java.math.BigDecimal.ZERO)
+                .balance(BigDecimal.ZERO)
                 .currency(request.currency())
                 .build();
-        return accountMapper.toResponse(accountRepository.save(account));
+        
+        account = accountRepository.save(account);
+
+        // 2. Se houver saldo inicial, cria uma transação de ajuste
+        if (initialBalance.compareTo(BigDecimal.ZERO) != 0) {
+            Transaction initialTransaction = Transaction.builder()
+                    .userId(userId)
+                    .accountId(account.getId())
+                    .type(initialBalance.compareTo(BigDecimal.ZERO) > 0 ? TransactionType.INCOME : TransactionType.EXPENSE)
+                    .amount(initialBalance.abs())
+                    .description("Saldo inicial")
+                    .date(LocalDate.now())
+                    .build();
+            
+            transactionRepository.save(initialTransaction);
+            
+            // 3. Atualiza o saldo da conta baseado na transação
+            account.setBalance(initialBalance);
+            accountRepository.save(account);
+        }
+
+        return accountMapper.toResponse(account);
     }
 
     @Transactional(readOnly = true)

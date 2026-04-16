@@ -1,0 +1,37 @@
+{
+  "project": "FinTrack",
+  "version": "1.0.0",
+  "tokens": {
+    "colors": {
+      "primary": {
+        "navy": "#0F172A",
+        "emerald": "#10B981",
+        "rose": "#EF4444"
+      },
+      "neutral": {
+        "background": "#F8FAFC",
+        "text": "#64748B",
+        "border": "#E2E8F0"
+      }
+    },
+    "typography": {
+      "fontFamily": "Inter, sans-serif",
+      "weights": {
+        "regular": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700
+      }
+    },
+    "spacing": {
+      "unit": "4px",
+      "scales": {
+        "xs": "4px",
+        "sm": "8px",
+        "md": "16px",
+        "lg": "24px",
+        "xl": "32px"
+      }
+    }
+  }
+}

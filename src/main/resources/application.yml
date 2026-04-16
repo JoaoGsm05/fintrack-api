@@ -5,11 +5,25 @@ spring:
     active: dev
   jpa:
     open-in-view: false
+  cache:
+    caffeine:
+      spec: initialCapacity=100,maximumSize=500,expireAfterWrite=300s
+  mail:
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 server:
   port: 8080
+  tomcat:
+    connection-timeout: 5s
 
 app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000}
   security:
     jwt:
       secret: ${JWT_SECRET:change-me-in-production-use-256bit-key}

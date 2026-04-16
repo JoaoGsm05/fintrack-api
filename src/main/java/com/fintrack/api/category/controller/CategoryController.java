@@ -5,6 +5,8 @@ import com.fintrack.api.category.dto.CategoryRequest;
 import com.fintrack.api.category.dto.CategoryResponse;
 import com.fintrack.api.category.dto.CategoryUpdateRequest;
 import com.fintrack.api.category.service.CategoryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Categorias", description = "Categorias hierárquicas para classificar transações")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor

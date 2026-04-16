@@ -6,9 +6,11 @@ import com.fintrack.api.transaction.dto.TransactionRequest;
 import com.fintrack.api.transaction.dto.TransactionResponse;
 import com.fintrack.api.transaction.dto.TransactionUpdateRequest;
 import com.fintrack.api.transaction.service.TransactionService;
+import com.fintrack.api.shared.dto.PagedResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "Transações", description = "Lançamentos financeiros (receitas e despesas) com filtros e paginação")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
@@ -34,11 +38,11 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<TransactionResponse>> listAll(
+    public ResponseEntity<PagedResponse<TransactionResponse>> listAll(
             @AuthenticationPrincipal User usuario,
             TransactionFilterRequest filter,
             @PageableDefault(size = 20, sort = "date") Pageable pageable) {
-        return ResponseEntity.ok(transactionService.listAll(usuario.getId(), filter, pageable));
+        return ResponseEntity.ok(PagedResponse.from(transactionService.listAll(usuario.getId(), filter, pageable)));
     }
 
     @GetMapping("/{id}")

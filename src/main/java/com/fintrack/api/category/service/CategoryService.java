@@ -10,6 +10,8 @@ import com.fintrack.api.shared.exception.BusinessRuleException;
 import com.fintrack.api.shared.exception.ResourceNotFoundException;
 import com.fintrack.api.transaction.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +27,9 @@ public class CategoryService {
     private final TransactionRepository transactionRepository;
     private final CategoryMapper categoryMapper;
 
+    @CacheEvict(value = "categories", key = "#userId")
     @Transactional
     public CategoryResponse create(UUID userId, CategoryRequest request) {
-        // Valida a categoria pai, se informada
         if (request.parentId() != null
                 && !categoryRepository.existsByIdAndUserIdAndDeletedAtIsNull(request.parentId(), userId)) {
             throw new ResourceNotFoundException("Categoria pai", request.parentId());
@@ -43,6 +45,7 @@ public class CategoryService {
         return categoryMapper.toResponse(categoryRepository.save(category));
     }
 
+    @Cacheable(value = "categories", key = "#userId")
     @Transactional(readOnly = true)
     public List<CategoryResponse> listAll(UUID userId) {
         return categoryMapper.toResponseList(categoryRepository.findAllByUserIdAndDeletedAtIsNull(userId));
@@ -53,35 +56,30 @@ public class CategoryService {
         return categoryMapper.toResponse(buscarCategoriaDoUsuario(userId, id));
     }
 
+    @CacheEvict(value = "categories", key = "#userId")
     @Transactional
     public CategoryResponse update(UUID userId, UUID id, CategoryUpdateRequest request) {
         Category category = buscarCategoriaDoUsuario(userId, id);
-        if (request.name() != null)  category.setName(request.name());
-        if (request.icon() != null)  category.setIcon(request.icon());
+        if (request.name() != null) category.setName(request.name());
+        if (request.icon() != null) category.setIcon(request.icon());
         if (request.color() != null) category.setColor(request.color());
         return categoryMapper.toResponse(categoryRepository.save(category));
     }
 
+    @CacheEvict(value = "categories", key = "#userId")
     @Transactional
     public void delete(UUID userId, UUID id) {
-        buscarCategoriaDoUsuario(userId, id); // garante posse
+        Category category = buscarCategoriaDoUsuario(userId, id);
 
         if (categoryRepository.existsByParentIdAndDeletedAtIsNull(id)) {
             throw new BusinessRuleException(
-                    "Não é possível excluir a categoria pois ela possui subcategorias ativas");
+                    "Nao e possivel excluir a categoria pois ela possui subcategorias ativas");
         }
 
-        if (transactionRepository.existsByCategoryIdAndDeletedAtIsNull(id)) {
-            throw new BusinessRuleException(
-                    "Não é possível excluir a categoria pois ela possui transações ativas");
-        }
-
-        Category category = buscarCategoriaDoUsuario(userId, id);
+        transactionRepository.clearCategoryReferences(userId, id);
         category.setDeletedAt(LocalDateTime.now());
         categoryRepository.save(category);
     }
-
-    // ── Método auxiliar ───────────────────────────────────────────────────────
 
     private Category buscarCategoriaDoUsuario(UUID userId, UUID id) {
         return categoryRepository.findByIdAndUserIdAndDeletedAtIsNull(id, userId)

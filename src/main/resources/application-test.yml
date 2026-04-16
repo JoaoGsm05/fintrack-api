@@ -5,13 +5,16 @@ spring:
     username: sa
     password:
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: validate
     show-sql: false
   flyway:
     enabled: true
-    locations: classpath:db/migration
+    locations: classpath:db/migration,classpath:db/h2
+  mail:
+    host: localhost
+    port: 2525
+    test-connection: false
 
 app:
   security:

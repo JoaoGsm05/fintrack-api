@@ -27,13 +27,13 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
-                        fe -> fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "Invalid value",
+                        fe -> fe.getDefaultMessage() != null ? fe.getDefaultMessage() : "O valor informado é inválido",
                         (a, b) -> a));
 
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
         pd.setType(TYPE_VALIDATION);
-        pd.setTitle("Validation Failed");
-        pd.setDetail("One or more fields are invalid");
+        pd.setTitle("Quase lá! Alguns campos precisam de atenção");
+        pd.setDetail("Verifique os campos abaixo para prosseguirmos com a sua solicitação.");
         pd.setProperty("errors", errors);
         return pd;
     }
@@ -42,8 +42,8 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         pd.setType(TYPE_BUSINESS);
-        pd.setTitle("Email Already Registered");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle("Este e-mail já está em uso");
+        pd.setDetail("Parece que você já tem uma conta conosco. Tente fazer login ou recupere sua senha.");
         return pd;
     }
 
@@ -51,8 +51,8 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
         pd.setType(TYPE_AUTH);
-        pd.setTitle("Authentication Failed");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle("Ops! Credenciais inválidas");
+        pd.setDetail("E-mail ou senha incorretos. Verifique seus dados e tente novamente.");
         return pd;
     }
 
@@ -60,8 +60,8 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleInvalidToken(InvalidTokenException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
         pd.setType(TYPE_AUTH);
-        pd.setTitle("Invalid Token");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle("Sessão expirada ou inválida");
+        pd.setDetail("Para sua segurança, sua sessão expirou. Por favor, faça login novamente.");
         return pd;
     }
 
@@ -69,8 +69,8 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         pd.setType(TYPE_NOT_FOUND);
-        pd.setTitle("Resource Not Found");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle("Recurso não encontrado");
+        pd.setDetail(ex.getMessage() + ". Verifique se o item ainda existe ou se você tem acesso a ele.");
         return pd;
     }
 
@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleBusinessRule(BusinessRuleException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNPROCESSABLE_ENTITY);
         pd.setType(TYPE_BUSINESS);
-        pd.setTitle("Business Rule Violation");
+        pd.setTitle("Não foi possível concluir esta ação");
         pd.setDetail(ex.getMessage());
         return pd;
     }
@@ -87,8 +87,8 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
         pd.setType(TYPE_FORBIDDEN);
-        pd.setTitle("Access Denied");
-        pd.setDetail("Você não tem permissão para acessar este recurso");
+        pd.setTitle("Acesso Restrito");
+        pd.setDetail("Você não possui as permissões necessárias para acessar este recurso.");
         return pd;
     }
 
@@ -96,8 +96,8 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleGeneric(Exception ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         pd.setType(URI.create("urn:fintrack:error:internal"));
-        pd.setTitle("Internal Server Error");
-        pd.setDetail("An unexpected error occurred");
+        pd.setTitle("Algo não saiu como o esperado");
+        pd.setDetail("Tivemos um problema interno, mas nossa equipe já foi notificada. Tente novamente em alguns instantes.");
         return pd;
     }
 }
